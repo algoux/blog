@@ -527,6 +527,18 @@ img {
   border-bottom: 1px solid var(--surface-border);
 }
 
+.post-list-empty {
+  margin: 0;
+  padding: clamp(28px, 5vw, 42px) 0;
+  border-bottom: 1px solid var(--surface-border);
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .post-list-content {
   min-width: 0;
 }

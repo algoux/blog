@@ -27,6 +27,8 @@ const {
   previousUrl,
   nextUrl,
 } = Astro.props;
+
+const hasPosts = posts.length > 0;
 ---
 
 <section class="index-hero" aria-labelledby="page-title">
@@ -39,7 +41,7 @@ const {
 
 <section class="post-list" aria-label="文章列表">
   {
-    posts.map((post) => {
+    hasPosts ? posts.map((post) => {
       const product = products[post.data.product];
       return (
         <article class="post-list-item">
@@ -75,7 +77,7 @@ const {
           )}
         </article>
       );
-    })
+    }) : <p class="post-list-empty" role="status">暂无文章</p>
   }
 </section>
 
