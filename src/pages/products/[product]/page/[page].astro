@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../../components/BaseLayout.astro';
+import PostList from '../../../../components/PostList.astro';
+import {
+  filterPostsByProduct,
+  getPublishedPosts,
+  paginatePosts,
+} from '../../../../lib/posts';
+import { productIds, products } from '../../../../lib/products';
+
+export async function getStaticPaths() {
+  const posts = getPublishedPosts(await getCollection('posts'));
+
+  return productIds.flatMap((productId) => {
+    const productPosts = filterPostsByProduct(posts, productId);
+
+    return paginatePosts(productPosts, `/products/${productId}/`)
+      .slice(1)
+      .map((page) => ({
+        params: {
+          product: productId,
+          page: String(page.currentPage),
+        },
+        props: { page, product: products[productId] },
+      }));
+  });
+}
+
+const { page, product } = Astro.props;
+---
+
+<BaseLayout
+  title={`${product.name} 文章，第 ${page.currentPage} 页`}
+  description={product.description}
+  canonical={new URL(`/products/${product.id}/page/${page.currentPage}/`, Astro.site).toString()}
+>
+  <PostList
+    posts={page.posts}
+    title={`${product.name}`}
+    description={product.description}
+    activeProduct={product.id}
+    currentPage={page.currentPage}
+    totalPages={page.totalPages}
+    previousUrl={page.previousUrl}
+    nextUrl={page.nextUrl}
+  />
+</BaseLayout>

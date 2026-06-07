@@ -1,0 +1,82 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../components/BaseLayout.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import { formatPostDate, getPostSlug, getPostUrl, getPublishedPosts } from '../../lib/posts';
+import { products } from '../../lib/products';
+
+export async function getStaticPaths() {
+  const posts = getPublishedPosts(await getCollection('posts'));
+
+  return posts.map((post) => ({
+    params: { slug: getPostSlug(post) },
+    props: { post },
+  }));
+}
+
+type Props = {
+  post: CollectionEntry<'posts'>;
+};
+
+const { post } = Astro.props as Props;
+const { Content, headings } = await render(post);
+const product = products[post.data.product];
+const canonical = new URL(getPostUrl(post), Astro.site).toString();
+const ogImage = post.data.heroImage
+  ? new URL(post.data.heroImage.src, Astro.site).toString()
+  : undefined;
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  canonical={canonical}
+  ogImage={ogImage}
+>
+  <div class="article-shell">
+    <article class="article-main" data-pagefind-body>
+      <header class="article-header">
+        <div class="article-meta">
+          <time datetime={post.data.pubDate.toISOString()}>
+            {formatPostDate(post.data.pubDate)}
+          </time>
+          <a class="product-chip" href={`/products/${product.id}/`} data-pagefind-filter="product">
+            {product.name}
+          </a>
+          {
+            post.data.updatedDate && (
+              <span>更新于 {formatPostDate(post.data.updatedDate)}</span>
+            )
+          }
+        </div>
+        <h1>{post.data.title}</h1>
+        <p class="article-description">{post.data.description}</p>
+        {
+          post.data.tags.length > 0 && (
+            <div class="tag-row" aria-label="标签">
+              {post.data.tags.map((tag) => <span>{tag}</span>)}
+            </div>
+          )
+        }
+        {
+          post.data.heroImage && (
+            <figure class="article-hero">
+              <Image
+                src={post.data.heroImage}
+                alt={post.data.heroImageAlt ?? ''}
+                widths={[720, 960, 1280]}
+                sizes="(max-width: 980px) 100vw, 720px"
+                loading="eager"
+              />
+            </figure>
+          )
+        }
+      </header>
+      <div class="article-content">
+        <Content />
+      </div>
+    </article>
+    <TableOfContents headings={headings} />
+  </div>
+</BaseLayout>

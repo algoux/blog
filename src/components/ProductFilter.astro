@@ -1,0 +1,31 @@
+---
+import { productList, type ProductId } from '../lib/products';
+
+type Props = {
+  activeProduct?: ProductId;
+};
+
+const { activeProduct } = Astro.props;
+---
+
+<nav class="product-filter" aria-label="按产品筛选文章">
+  <a
+    class:list={['filter-link', !activeProduct && 'is-active']}
+    href="/"
+    aria-current={!activeProduct ? 'page' : undefined}
+  >
+    全部分类
+  </a>
+  {
+    productList.map((product) => (
+      <a
+        class:list={['filter-link', activeProduct === product.id && 'is-active']}
+        href={`/products/${product.id}/`}
+        style={`--filter-accent: ${product.accent}`}
+        aria-current={activeProduct === product.id ? 'page' : undefined}
+      >
+        {product.name}
+      </a>
+    ))
+  }
+</nav>

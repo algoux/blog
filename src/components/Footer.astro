@@ -1,0 +1,15 @@
+---
+import { productList } from '../lib/products';
+
+const footerProducts = productList.filter((product) => product.id !== 'algoux');
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>© 2019-present algoUX. All Rights Reserved.</p>
+    <nav class="footer-links" aria-label="页脚导航">
+      <a href="/rss.xml">RSS</a>
+      {footerProducts.map((product) => <a href={product.href}>{product.name}</a>)}
+    </nav>
+  </div>
+</footer>

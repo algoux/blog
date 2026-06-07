@@ -1,0 +1,115 @@
+---
+import 'katex/dist/katex.min.css';
+import '../styles/global.css';
+import Footer from './Footer.astro';
+import Header from './Header.astro';
+import SearchModal from './SearchModal.astro';
+
+type Props = {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+};
+
+const {
+  title = 'algoUX Blog',
+  description = 'algoUX 的产品动态、版本说明与设计记录。',
+  canonical = new URL(Astro.url.pathname, Astro.site).toString(),
+  ogImage = new URL('/og-image.png', Astro.site).toString(),
+} = Astro.props;
+
+const pageTitle = title === 'algoUX Blog' ? title : `${title} | algoUX Blog`;
+const themeScript = `
+(() => {
+  const key = 'algoux-blog-theme';
+  const root = document.documentElement;
+  const meta = document.querySelector('meta[name="theme-color"][data-theme-color]');
+  const colors = { light: '#eefaff', dark: '#12384f' };
+  const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const stored = localStorage.getItem(key);
+  const getMode = () => stored === 'light' || stored === 'dark' || stored === 'auto'
+    ? stored
+    : 'auto';
+  const getTheme = (mode) => mode === 'auto'
+    ? (systemDark.matches ? 'dark' : 'light')
+    : mode;
+  const apply = (mode) => {
+    const theme = getTheme(mode);
+    root.dataset.themeMode = mode;
+    root.dataset.theme = theme;
+    root.classList.toggle('dark', theme === 'dark');
+    root.classList.toggle('light', theme === 'light');
+    if (meta) meta.setAttribute('content', colors[theme]);
+  };
+  apply(getMode());
+  systemDark.addEventListener?.('change', () => {
+    if ((root.dataset.themeMode || getMode()) === 'auto') apply('auto');
+  });
+})();
+`;
+---
+
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="description" content={description} />
+    <meta name="author" content="algoUX" />
+    <meta name="creator" content="algoUX" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="darkreader-lock" />
+    <link rel="canonical" href={canonical} />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#31c2d7" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="algoUX Blog RSS" href="/rss.xml" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#eefaff"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#12384f"
+    />
+    <meta name="theme-color" content="#eefaff" data-theme-color />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content="algoUX Blog" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <title>{pageTitle}</title>
+    <script is:inline set:html={themeScript}></script>
+  </head>
+  <body>
+    <div class="site-shell">
+      <div class="site-ambient" aria-hidden="true">
+        <span class="ambient-band ambient-band-a"></span>
+        <span class="ambient-band ambient-band-b"></span>
+      </div>
+      <Header />
+      <main class="site-main">
+        <slot />
+      </main>
+      <Footer />
+    </div>
+    <SearchModal />
+  </body>
+</html>

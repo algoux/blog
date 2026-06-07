@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../components/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPublishedPosts, paginatePosts } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = getPublishedPosts(await getCollection('posts'));
+  return paginatePosts(posts, '/')
+    .slice(1)
+    .map((page) => ({
+      params: { page: String(page.currentPage) },
+      props: { page },
+    }));
+}
+
+const { page } = Astro.props;
+---
+
+<BaseLayout
+  title={`全部文章，第 ${page.currentPage} 页`}
+  description="algoUX 的产品动态和功能介绍。"
+>
+  <PostList
+    posts={page.posts}
+    title="algoUX Blog"
+    description="欢迎浏览我们的产品动态和功能介绍。"
+    currentPage={page.currentPage}
+    totalPages={page.totalPages}
+    previousUrl={page.previousUrl}
+    nextUrl={page.nextUrl}
+  />
+</BaseLayout>

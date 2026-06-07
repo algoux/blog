@@ -1,0 +1,87 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { formatPostDate, getPostUrl } from '../lib/posts';
+import { products, type ProductId } from '../lib/products';
+import Pagination from './Pagination.astro';
+import ProductFilter from './ProductFilter.astro';
+
+type Props = {
+  posts: CollectionEntry<'posts'>[];
+  title: string;
+  description: string;
+  activeProduct?: ProductId;
+  currentPage: number;
+  totalPages: number;
+  previousUrl?: string;
+  nextUrl?: string;
+};
+
+const {
+  posts,
+  title,
+  description,
+  activeProduct,
+  currentPage,
+  totalPages,
+  previousUrl,
+  nextUrl,
+} = Astro.props;
+---
+
+<section class="index-hero" aria-labelledby="page-title">
+  <!-- <p class="index-kicker">algoUX 产品博客</p> -->
+  <h1 id="page-title">{title}</h1>
+  <p>{description}</p>
+</section>
+
+<ProductFilter activeProduct={activeProduct} />
+
+<section class="post-list" aria-label="文章列表">
+  {
+    posts.map((post) => {
+      const product = products[post.data.product];
+      return (
+        <article class="post-list-item">
+          <div class="post-list-content">
+            <div class="post-meta-row">
+              <time datetime={post.data.pubDate.toISOString()}>
+                {formatPostDate(post.data.pubDate)}
+              </time>
+              <a class="product-chip" href={`/products/${product.id}/`}>
+                {product.name}
+              </a>
+            </div>
+            <h2>
+              <a href={getPostUrl(post)}>{post.data.title}</a>
+            </h2>
+            <p>{post.data.description}</p>
+            {post.data.tags.length > 0 && (
+              <div class="tag-row" aria-label="标签">
+                {post.data.tags.map((tag) => <span>{tag}</span>)}
+              </div>
+            )}
+          </div>
+          {post.data.heroImage && (
+            <a class="post-list-image" href={getPostUrl(post)} aria-label={post.data.title}>
+              <Image
+                src={post.data.heroImage}
+                alt={post.data.heroImageAlt ?? ''}
+                widths={[260, 420, 640]}
+                sizes="(max-width: 760px) 100vw, 220px"
+                loading="eager"
+              />
+            </a>
+          )}
+        </article>
+      );
+    })
+  }
+</section>
+
+<Pagination
+  currentPage={currentPage}
+  totalPages={totalPages}
+  previousUrl={previousUrl}
+  nextUrl={nextUrl}
+/>

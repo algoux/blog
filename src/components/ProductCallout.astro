@@ -1,0 +1,22 @@
+---
+import { products, type ProductId } from '../lib/products';
+
+type Props = {
+  product: ProductId;
+  title: string;
+  href?: string;
+};
+
+const { product: productId, title, href } = Astro.props;
+const product = products[productId];
+const target = href ?? product.href;
+---
+
+<aside class="product-callout" style={`--callout-accent: ${product.accent}`}>
+  <div>
+    <span>{product.name}</span>
+    <h3>{title}</h3>
+    <slot />
+  </div>
+  <a href={target} target="_blank" rel="noreferrer noopener">打开产品</a>
+</aside>

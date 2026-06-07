@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../components/BaseLayout.astro';
+import PostList from '../components/PostList.astro';
+import { getPublishedPosts, paginatePosts } from '../lib/posts';
+
+const posts = getPublishedPosts(await getCollection('posts'));
+const page = paginatePosts(posts, '/')[0];
+---
+
+<BaseLayout
+  title="algoUX Blog"
+  description="algoUX 的产品动态和功能介绍。"
+>
+  <PostList
+    posts={page.posts}
+    title="algoUX Blog"
+    description="欢迎浏览我们的产品动态和功能介绍。"
+    currentPage={page.currentPage}
+    totalPages={page.totalPages}
+    previousUrl={page.previousUrl}
+    nextUrl={page.nextUrl}
+  />
+</BaseLayout>
