@@ -4,6 +4,10 @@ import '../styles/global.css';
 import Footer from './Footer.astro';
 import Header from './Header.astro';
 import SearchModal from './SearchModal.astro';
+import {
+  createGoogleAnalyticsScript,
+  getGoogleAnalyticsMeasurementId,
+} from '../lib/googleAnalytics';
 
 type Props = {
   title?: string;
@@ -20,6 +24,10 @@ const {
 } = Astro.props;
 
 const pageTitle = title === 'algoUX Blog' ? title : `${title} | algoUX Blog`;
+const googleAnalyticsId = getGoogleAnalyticsMeasurementId();
+const googleAnalyticsScript = googleAnalyticsId
+  ? createGoogleAnalyticsScript(googleAnalyticsId)
+  : undefined;
 const themeScript = `
 (() => {
   const key = 'algoux-blog-theme';
@@ -96,6 +104,16 @@ const themeScript = `
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <title>{pageTitle}</title>
+    {googleAnalyticsId && (
+      <>
+        <script
+          is:inline
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+        ></script>
+        <script is:inline set:html={googleAnalyticsScript}></script>
+      </>
+    )}
     <script is:inline set:html={themeScript}></script>
   </head>
   <body>
